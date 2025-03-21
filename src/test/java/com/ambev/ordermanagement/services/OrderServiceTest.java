@@ -4,45 +4,50 @@ import com.ambev.ordermanagement.models.Order;
 import com.ambev.ordermanagement.models.OrderStatus;
 import com.ambev.ordermanagement.models.Product;
 import com.ambev.ordermanagement.repositories.OrderRepo;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
+import java.util.Set;
 
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.BDDMockito.given;
 
+@ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
+    @Mock
+    private OrderRepo orderRepo;
 
     @InjectMocks
-    public OrderService orderService;
+    private OrderService orderService;
 
-    @Mock
-    public OrderRepo orderRepo;
+    private Order order;
+
 
     @BeforeEach
     void setUp() {
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
-
-    @Test
-    void save() {
         Product product1 = new Product("Product1", 100.00, 3);
         Product product2 = new Product("Product2", 300.00, 2);
 
-        Order order = new Order(List.of(product1, product2), OrderStatus.PROCESSING);
+        order = new Order(Set.of(product1, product2), OrderStatus.PROCESSING);
+    }
+//
+//    @AfterEach
+//    void tearDown() {
+//    }
 
+    @Test
+    @DisplayName("When call save method with a valid order should return order saved test")
+    void saveOrderTest() {
+        given(orderRepo.save(order)).willReturn(order);
 
         Order result = orderService.save(order);
-        when(orderRepo.save(order)).thenReturn(order);
 
-        Assertions.assertEquals(order, result);
+        assertEquals(order, result);
     }
 
     @Test
