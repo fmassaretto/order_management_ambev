@@ -7,10 +7,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -20,7 +22,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Product {
+public class Product implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "product_id", unique = true, nullable = false)
@@ -36,6 +38,7 @@ public class Product {
     private int quantity;
 
     @ManyToMany(mappedBy = "products")
+    @Transient
     private Set<Order> order;
 
     public Product(String name, double price, int quantity) {
