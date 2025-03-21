@@ -2,7 +2,7 @@ FROM openjdk:21-slim
 
 VOLUME /tmp
 
-#EXPOSE 8080
+EXPOSE 8080
 
 ARG JAR_FILE=build/libs/ordermanagement-0.0.1-SNAPSHOT.jar
 
