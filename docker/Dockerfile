@@ -15,4 +15,6 @@ COPY --from=build /home/gradle/src/build/libs/*.jar /app/ordermanagement.jar
 
 #ARG JAR_FILE=target/*.jar
 #COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","ordermanagement.jar"]
+WORKDIR /home/gradle/src
+RUN ./gradlew spring-boot:run
+#ENTRYPOINT ["java","-jar","ordermanagement.jar"]

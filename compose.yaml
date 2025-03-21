@@ -1,35 +1,37 @@
 services:
-  postgres:
-    image: 'postgres:latest'
-    environment:
-      - 'POSTGRES_DB=ordermanagement_db'
-      - 'POSTGRES_PASSWORD=lmi56n'
-      - 'POSTGRES_USER=fmass'
-    ports:
-      - '5432:5432'
-    networks:
-      - ordermanagement-network
-
   api-01: &app
-#    container_name: oredermanagement-api-01
+#    container_name: ordermanagement-api-01
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile
     hostname: app1
     environment:
-      APP_NAME: ordermanagement
-      APP_ENV: dev
+      - SERVER_PORT=8080
+      - DATABASE_URL=jdbc:postgresql://localhost:5432/ordermanagement_db
+      - DATABASE_USERNAME=fmass
+      - DATABASE_PASSWORD=lmi56n
+      - DB_POOL = 35
+      - CLUSTER = true
+      - CLUSTER_WORKERS = 5
+    expose:
+      - "8080:8080"
     volumes:
       - ./:/app
+    ulimits:
+      nproc: 1000000
+      nofile:
+        soft: 1000000
+        hard: 1000000
     depends_on:
-      - postgres
+      - db-postgresql
     deploy:
       resources:
         limits:
           cpus: '0.4'
           memory: '300M'
-    networks:
-      - ordermanagement-network
+    network_mode: "host"
+#    networks:
+#      - ordermanagement-network
 
 #  api-02:
 #    <<: *app
@@ -37,22 +39,50 @@ services:
 #    environment:
 #      - SERVER_PORT=8090
 
+  db-postgresql:
+    image: 'postgres:latest'
+    hostname: db-postgresql
+    environment:
+      - POSTGRES_DB=ordermanagement_db
+      - POSTGRES_PASSWORD=lmi56n
+      - POSTGRES_USER=fmass
+    ports:
+      - '5432:5432'
+    command: "postgres -c max_connections=200 -c shared_buffers=512MB -c effective_cache_size=1536MB -c maintenance_work_mem=128MB -c checkpoint_completion_target=0.9 -c wal_buffers=16MB -c default_statistics_target=100 -c random_page_cost=1.1 -c effective_io_concurrency=200 -c work_mem=1310kB -c huge_pages=off -c min_wal_size=1GB -c max_wal_size=4GB"
+#    healthcheck:
+#      test: [ "CMD-SHELL", "pg_isready" ]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 20
+#      start_period: 10s
+    network_mode: "host"
+#    networks:
+#      - ordermanagement-network
+
+
   nginx:
     image: nginx:alpine
+    ports:
+      - "9999:9999"
     volumes:
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
 #    network_mode: host
     depends_on:
       - api-01
 #      - api-02
+    ulimits:
+      nofile:
+        soft: 1000000
+        hard: 1000000
     deploy:
       resources:
         limits:
           cpus: '0.3'
           memory: '500M'
-    networks:
-      - ordermanagement-network
+#    networks:
+#      - ordermanagement-network
+    network_mode: "host"
 
-networks:
-  ordermanagement-network:
-    driver: bridge
+#networks:
+#  ordermanagement-network:
+#    driver: bridge
