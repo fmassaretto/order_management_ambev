@@ -13,7 +13,7 @@ services:
       - DB_POOL = 35
       - CLUSTER = true
       - CLUSTER_WORKERS = 5
-    expose:
+    ports:
       - "8080:8080"
     volumes:
       - ./:/app
@@ -81,6 +81,12 @@ services:
           memory: '500M'
 #    networks:
 #      - ordermanagement-network
+    network_mode: "host"
+
+  redis:
+    image: redis
+    container_name: redis
+    ports: [ "6379:6379" ]
     network_mode: "host"
 
 #networks:
