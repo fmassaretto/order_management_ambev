@@ -17,7 +17,6 @@ public class ApiError {
     private LocalDateTime timestamp;
     private String message;
     private String debugMessage;
-    private List<ApiSubError> subErrors;
 
     private ApiError() {
         timestamp = LocalDateTime.now();
@@ -40,8 +39,5 @@ public class ApiError {
         this.status = status;
         this.message = message;
         this.debugMessage = ex.getLocalizedMessage();
-    }
-
-    private abstract class ApiSubError {
     }
 }

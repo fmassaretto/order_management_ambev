@@ -5,7 +5,6 @@ import com.ambev.ordermanagement.models.Order;
 import com.ambev.ordermanagement.models.dto.OrderResponse;
 import com.ambev.ordermanagement.repositories.OrderRepo;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -16,8 +15,12 @@ import java.util.UUID;
 
 @Service
 public class OrderService {
-    @Autowired
-    private OrderRepo orderRepo;
+
+    private final OrderRepo orderRepo;
+
+    public OrderService(OrderRepo orderRepo) {
+        this.orderRepo = orderRepo;
+    }
 
     @Transactional
     @CachePut(value = "orderResponse", key = "#order.id")
