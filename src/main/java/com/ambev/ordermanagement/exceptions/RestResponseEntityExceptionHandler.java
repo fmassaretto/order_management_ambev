@@ -23,4 +23,14 @@ public class RestResponseEntityExceptionHandler
         return new ResponseEntity<>(apiError, HttpStatus.NO_CONTENT);
     }
 
+    @ExceptionHandler(DuplicateOrderException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    protected ResponseEntity<ApiError> handleDuplicateOrderException(
+            RuntimeException ex, WebRequest request) {
+        String bodyOfResponse = ex.getMessage();
+        ApiError apiError = new ApiError(HttpStatus.CONFLICT, bodyOfResponse, ex);
+        return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
+    }
+
 }
