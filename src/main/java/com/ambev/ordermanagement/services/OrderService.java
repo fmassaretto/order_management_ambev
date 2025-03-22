@@ -1,5 +1,6 @@
 package com.ambev.ordermanagement.services;
 
+import com.ambev.ordermanagement.exceptions.DuplicateOrderException;
 import com.ambev.ordermanagement.exceptions.OrderNotFoundException;
 import com.ambev.ordermanagement.models.Order;
 import com.ambev.ordermanagement.models.dto.OrderResponse;
@@ -25,6 +26,14 @@ public class OrderService {
     @Transactional
     @CachePut(value = "orderResponse", key = "#order.id")
     public OrderResponse save(Order order) {
+
+        Optional<Order> newOrder = orderRepo.findById(order.getId());
+
+        if (newOrder.isPresent()) {
+            throw new DuplicateOrderException("Order id=%s already exists".formatted(newOrder.get().getId()));
+        }
+
+        order.calculateTotalAmount();
 
         Order res = orderRepo.save(order);
 

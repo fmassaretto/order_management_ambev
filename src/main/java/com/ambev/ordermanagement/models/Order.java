@@ -49,5 +49,17 @@ public class Order implements Serializable {
     public Order(Set<Product> products, OrderStatus status) {
         this.products = products;
         this.status = status;
+
+        calculateTotalAmount();
+    }
+
+    public void calculateTotalAmount() {
+        double totalAmount = 0.0;
+
+        for (Product product : products) {
+            totalAmount += product.getPrice() * product.getQuantity();
+        }
+
+        setTotalAmount(totalAmount);
     }
 }

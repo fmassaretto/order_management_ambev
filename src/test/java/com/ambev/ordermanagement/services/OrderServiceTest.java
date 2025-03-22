@@ -1,5 +1,7 @@
 package com.ambev.ordermanagement.services;
 
+import com.ambev.ordermanagement.exceptions.DuplicateOrderException;
+import com.ambev.ordermanagement.exceptions.OrderNotFoundException;
 import com.ambev.ordermanagement.models.Order;
 import com.ambev.ordermanagement.models.OrderStatus;
 import com.ambev.ordermanagement.models.Product;
@@ -13,10 +15,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,28 +36,38 @@ class OrderServiceTest {
     private OrderResponse orderResponse;
 
     private Order order;
+    private Order order2;
 
     @BeforeEach
     void setUp() {
         Product product1 = new Product("Product1", 100.00, 3);
         Product product2 = new Product("Product2", 300.00, 2);
+Product product3 = new Product("Product3", 50.00, 2);
+        Product product4 = new Product("Product4", 100.00, 5);
 
-        Set<Product> products = Set.of(product1, product2);
+        Set<Product> setProducts1 = Set.of(product1, product2);
+        Set<Product> setProducts2 = Set.of(product3, product4);
 
         UUID uuid = UUID.randomUUID();
 
         orderResponse = OrderResponse.builder()
                 .id(uuid)
-                .products(products)
-                .totalAmount(123.12)
+                .products(setProducts1)
+                .totalAmount(900.00)
                 .status(OrderStatus.PROCESSING)
                 .build();
 
         order = new Order();
         order.setId(uuid);
-        order.setTotalAmount(123.12);
+        order.setTotalAmount(900.00);
         order.setStatus(OrderStatus.PROCESSING);
-        order.setProducts(products);
+        order.setProducts(setProducts1);
+
+        order2 = new Order();
+        order2.setId(uuid);
+        order2.setTotalAmount(900.00);
+        order2.setStatus(OrderStatus.PROCESSING);
+        order2.setProducts(setProducts2);
     }
 //
 //    @AfterEach
@@ -69,6 +85,53 @@ class OrderServiceTest {
     }
 
     @Test
-    void findAll() {
+    @DisplayName("When order already exists and call save method with a valid order should throw exception test")
+    void saveOrderAlreadyExistsThrowsExceptionTest() {
+        given(orderRepo.findById(any())).willReturn(Optional.of(order));
+
+        assertThrows(DuplicateOrderException.class, () -> orderService.save(order));
+    }
+
+    @Test
+    @DisplayName("When call findAll method should return list of orders test")
+    void findAllOrdersTest() {
+        List<Order> orders = List.of(order, order2);
+
+        given(orderRepo.findAll()).willReturn(orders);
+
+        List<OrderResponse> result = orderService.findAll();
+
+        List<OrderResponse> expectedResult = orders.stream()
+                .map(item -> OrderResponse.builder()
+                        .id(item.getId())
+                        .totalAmount(item.getTotalAmount())
+                        .status(item.getStatus())
+                        .products(item.getProducts()).build()).toList();
+
+        assertEquals(expectedResult, result);
+    }
+
+    @Test
+    @DisplayName("When call findById method should return list of orders test")
+    void findOrderByIdTest() {
+        given(orderRepo.findById(any())).willReturn(Optional.of(order2));
+
+        OrderResponse result = orderService.findById(any());
+
+        OrderResponse expectedResult = OrderResponse.builder()
+                        .id(order2.getId())
+                        .totalAmount(order2.getTotalAmount())
+                        .status(order2.getStatus())
+                        .products(order2.getProducts()).build();
+
+        assertEquals(expectedResult, result);
+    }
+
+    @Test
+    @DisplayName("When call findById method but cannot found order should throw exception test")
+    void orderNotFoundTest() {
+        given(orderRepo.findById(any())).willReturn(Optional.empty());
+
+        assertThrows(OrderNotFoundException.class, () -> orderService.findById(any()));
     }
 }
