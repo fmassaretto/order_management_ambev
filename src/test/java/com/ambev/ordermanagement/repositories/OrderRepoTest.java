@@ -29,25 +29,14 @@ class OrderRepoTest {
     @Autowired
     private OrderRepo orderRepo;
 
-    @BeforeEach
-    void setUp() {
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
-
     @Test
-    @DisplayName("Test 1:Save Employee Test")
+    @DisplayName("Save Employee Test")
     @Rollback(value = true)
     public void saveOrderTest() {
         Product product1 = new Product("Product1", 100.00, 3);
         Product product2 = new Product("Product2", 300.00, 2);
 
-//        UUID uuid = UUID.randomUUID();
-
         Order order = new Order(Set.of(product1, product2), OrderStatus.PROCESSING);
-//        order.setId(uuid);
 
         Order result = orderRepo.save(order);
 
