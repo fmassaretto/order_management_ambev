@@ -3,9 +3,6 @@ package com.ambev.ordermanagement.repositories;
 import com.ambev.ordermanagement.models.Order;
 import com.ambev.ordermanagement.models.OrderStatus;
 import com.ambev.ordermanagement.models.Product;
-import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -15,9 +12,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.beans.Transient;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +26,7 @@ class OrderRepoTest {
 
     @Test
     @DisplayName("When save a valid order should save successfully Test")
-    @Rollback(value = true)
+    @Rollback
     public void saveOrderSuccessfullyTest() {
         Product product1 = new Product("Product1", 100.00, 3);
         Product product2 = new Product("Product2", 300.00, 2);
