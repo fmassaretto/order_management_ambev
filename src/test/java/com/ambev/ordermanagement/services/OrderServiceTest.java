@@ -33,16 +33,18 @@ class OrderServiceTest {
     @InjectMocks
     private OrderService orderService;
 
-    private OrderResponse orderResponse;
+    private OrderResponse orderResponseCompleted;
 
     private Order order;
     private Order order2;
+    private Order orderCompleted;
+    private Order orderWithNullId;
 
     @BeforeEach
     void setUp() {
         Product product1 = new Product("Product1", 100.00, 3);
         Product product2 = new Product("Product2", 300.00, 2);
-Product product3 = new Product("Product3", 50.00, 2);
+        Product product3 = new Product("Product3", 50.00, 2);
         Product product4 = new Product("Product4", 100.00, 5);
 
         Set<Product> setProducts1 = Set.of(product1, product2);
@@ -50,11 +52,11 @@ Product product3 = new Product("Product3", 50.00, 2);
 
         UUID uuid = UUID.randomUUID();
 
-        orderResponse = OrderResponse.builder()
+        orderResponseCompleted = OrderResponse.builder()
                 .id(uuid)
                 .products(setProducts1)
                 .totalAmount(900.00)
-                .status(OrderStatus.PROCESSING)
+                .status(OrderStatus.COMPLETED)
                 .build();
 
         order = new Order();
@@ -68,11 +70,19 @@ Product product3 = new Product("Product3", 50.00, 2);
         order2.setTotalAmount(900.00);
         order2.setStatus(OrderStatus.PROCESSING);
         order2.setProducts(setProducts2);
+
+        orderCompleted = new Order();
+        orderCompleted.setId(uuid);
+        orderCompleted.setTotalAmount(900.00);
+        orderCompleted.setStatus(OrderStatus.COMPLETED);
+        orderCompleted.setProducts(setProducts1);
+
+        orderWithNullId = new Order();
+        orderWithNullId.setId(null);
+        orderWithNullId.setTotalAmount(900.00);
+        orderWithNullId.setStatus(OrderStatus.COMPLETED);
+        orderWithNullId.setProducts(setProducts2);
     }
-//
-//    @AfterEach
-//    void tearDown() {
-//    }
 
     @Test
     @DisplayName("When call save method with a valid order should return order saved test")
@@ -81,7 +91,21 @@ Product product3 = new Product("Product3", 50.00, 2);
 
         OrderResponse result = orderService.save(order);
 
-        assertEquals(orderResponse, result);
+        assertEquals(orderResponseCompleted, result);
+        assertEquals(orderResponseCompleted.totalAmount(), result.totalAmount());
+        assertEquals(orderResponseCompleted.status(), result.status());
+    }
+
+    @Test
+    @DisplayName("When call save method with order with null ID should return order saved test")
+    void saveOrderIDNullTest() {
+        given(orderRepo.save(orderWithNullId)).willReturn(orderCompleted);
+
+        OrderResponse result = orderService.save(orderWithNullId);
+
+        assertEquals(orderResponseCompleted, result);
+        assertEquals(orderResponseCompleted.totalAmount(), result.totalAmount());
+        assertEquals(orderResponseCompleted.status(), result.status());
     }
 
     @Test
@@ -119,10 +143,10 @@ Product product3 = new Product("Product3", 50.00, 2);
         OrderResponse result = orderService.findById(any());
 
         OrderResponse expectedResult = OrderResponse.builder()
-                        .id(order2.getId())
-                        .totalAmount(order2.getTotalAmount())
-                        .status(order2.getStatus())
-                        .products(order2.getProducts()).build();
+                .id(order2.getId())
+                .totalAmount(order2.getTotalAmount())
+                .status(order2.getStatus())
+                .products(order2.getProducts()).build();
 
         assertEquals(expectedResult, result);
     }

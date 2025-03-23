@@ -30,9 +30,9 @@ class OrderRepoTest {
     private OrderRepo orderRepo;
 
     @Test
-    @DisplayName("Save Employee Test")
+    @DisplayName("When save a valid order should save successfully Test")
     @Rollback(value = true)
-    public void saveOrderTest() {
+    public void saveOrderSuccessfullyTest() {
         Product product1 = new Product("Product1", 100.00, 3);
         Product product2 = new Product("Product2", 300.00, 2);
 
